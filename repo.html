@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Explorer</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>GitHub Repo Explorer</h1>
+        </header>
+        <section class="repo-list-section">
+            <div class="card">
+                <h2>Repositories</h2>
+                <ul id="repo-list" class="repo-list">
+                    <!-- Dynamically populated repositories -->
+                </ul>
+            </div>
+        </section>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const link = sessionStorage.getItem('githubLink');
+            if (!link) {
+                alert('GitHub link not found! Redirecting to Step 1.');
+                window.location.href = 'index.html'; // Redirect to Step 1
+                return;
+            }
+            
+            // Example: Simulated repository data
+            const repos = ['Repo 1', 'Repo 2', 'Repo 3', 'Repo 4'];
+            const repoList = document.getElementById('repo-list');
+
+            repos.forEach((repo, index) => {
+                const li = document.createElement('li');
+                li.textContent = repo;
+                li.onclick = () => {
+                    sessionStorage.setItem('selectedRepo', repo);
+                    window.location.href = 'repo-details.html';
+                };
+                repoList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

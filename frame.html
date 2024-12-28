@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Explorer - Step 1</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>GitHub Repo Explorer</h1>
+        </header>
+        <section class="input-section">
+            <div class="card">
+                <h2>Enter GitHub Link</h2>
+                <input type="text" id="github-link" placeholder="Paste GitHub link here">
+                <button id="submit-btn" onclick="goToRepos()">Submit</button>
+            </div>
+        </section>
+    </div>
+    <script>
+        function goToRepos() {
+            const link = document.getElementById('github-link').value;
+            if (link) {
+                sessionStorage.setItem('githubLink', link); // Save the link for the next page
+                window.location.href = 'repo.html'; // Navigate to the next page
+            } else {
+                alert('Please enter a GitHub link!');
+            }
+        }
+    </script>
+</body>
+</html>
