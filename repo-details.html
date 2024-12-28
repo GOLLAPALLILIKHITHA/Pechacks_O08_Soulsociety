@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Explorer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('background4.jpg'); /* Path to your Demon Slayer image */
+            background-size: cover; /* Ensures the image covers the entire screen */
+            background-repeat: no-repeat; /* Prevents tiling */
+            background-attachment: fixed; /* Makes the background stay fixed during scroll */
+            background-position: center; 
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            display: inline-block;
+        }
+
+        .button {
+            position: relative;
+            
+            padding: 20px 40px;
+            margin: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(255, 138, 0, 0.6), 0 8px 20px rgba(229, 46, 113, 0.5);
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            border-radius: 50px;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .button:hover::before {
+            opacity: 1;
+        }
+
+        .button:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-btn {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            margin-right: 100px;
+        }
+
+        .chat-btn {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            margin-left: 100px;
+        }
+
+        .back-btn {
+            margin-top: 15px;
+            border: none;
+            height:60px;
+            width:170px;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            color: white;
+            font-size:20px;
+            
+        }
+
+        .back-btn:hover::before {
+            opacity: 1;
+
+        }
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(1, 129, 249, 0.61), 0 8px 20px rgba(33, 96, 255, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <button class="button download-btn" onclick="downloadPDF()">Download PDF</button>
+            <button class="button chat-btn" onclick="goToChat()">Chat with Repo</button>
+        </div>
+        <button onclick="history.back();" class="back-btn">Back &#8678;</button>
+    </div>
+    
+
+
+    <script>
+        function downloadPDF() {
+            alert("PDF Downloaded Successfully");
+        }
+
+        function goToChat() {
+            window.location.href = "chat.html"; // Redirects to the chat page
+        }
+    </script>
+</body>
+</html>
