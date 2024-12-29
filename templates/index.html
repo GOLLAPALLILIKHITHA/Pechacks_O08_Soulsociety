@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime GitHub Docs Generator</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+    :root {
+      --primary: #FF69B4;
+      --secondary: #6A5ACD;
+      --background: #1a1b1f;
+      --card-bg: #2a2b2f;
+      --text: #ffffff;
+      --hover: #FF1493;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 90%;
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 48px rgba(255, 105, 180, 0.25);
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      color: var(--secondary);
+      margin-top: 2rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid var(--secondary);
+      border-radius: 8px;
+      background: var(--background);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.25);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: var(--hover);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(100, 100);
+        opacity: 0;
+      }
+    }
+
+    #downloadLink {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: var(--secondary);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    #downloadLink:hover {
+      background: var(--hover);
+      transform: translateY(-2px);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--background);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-code"></i> Anime GitHub Docs</h1>
+    <input id="username" type="text" placeholder="✨ Enter GitHub Username">
+    <button onclick="fetchRepos()"><i class="fas fa-search"></i> Fetch Repositories</button>
+    <select id="repoList" aria-label="Repository List">
+      <option value="">Select a repository...</option>
+    </select>
+    <button onclick="generateDocs()"><i class="fas fa-file-code"></i> Generate Documentation</button>
+    <textarea id="output" placeholder="Generated documentation will appear here... ✨"></textarea>
+    <a id="downloadLink" style="display:none;" target="_blank">
+      <i class="fas fa-download"></i> Download PDF
+    </a>
+
+    <h2><i class="fas fa-comments"></i> Chat with Repository</h2>
+    <textarea id="chatInput" placeholder="Ask anything about this repository... 💭"></textarea>
+    <button onclick="generateChat()"><i class="fas fa-paper-plane"></i> Ask Question</button>
+    <textarea id="chatOutput" placeholder="Chat responses will appear here... 🤖"></textarea>
+  </div>
+  <script>
+    async function fetchRepos() {
+      const username = document.getElementById('username').value;
+      const repoList = document.getElementById('repoList');
+      const output = document.getElementById('output');
+      const downloadLink = document.getElementById('downloadLink');
+      output.value = '';
+      downloadLink.style.display = 'none';
+
+      if (!username) {
+        alert('Please enter a GitHub username.');
+        return;
+      }
+
+      const response = await fetch('/fetch_repos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        repoList.innerHTML = '';
+        data.repos.forEach(repo => {
+          const option = document.createElement('option');
+          option.value = repo;
+          option.textContent = repo;
+          repoList.appendChild(option);
+        });
+      } else {
+        alert(data.error || 'Failed to fetch repositories.');
+      }
+    }
+
+    async function generateDocs() {
+      const repoFullName = document.getElementById('repoList').value;
+      const output = document.getElementById('output');
+      const downloadLink = document.getElementById('downloadLink');
+      output.value = '';
+      downloadLink.style.display = 'none';
+
+      if (!repoFullName) {
+        alert('Please select a repository.');
+        return;
+      }
+
+      const response = await fetch('/generate_docs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo_full_name: repoFullName }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        output.value = data.documentation;
+        downloadLink.href = `/download_pdf/${data.pdf_filename}`;
+        downloadLink.textContent = 'Download PDF';
+        downloadLink.style.display = 'block';
+      } else {
+        alert(data.error || 'Failed to generate documentation.');
+      }
+    }
+
+    async function generateChat() {
+      const repoFullName = document.getElementById('repoList').value;
+      const userInput = document.getElementById('chatInput').value;
+      const chatOutput = document.getElementById('chatOutput');
+
+      if (!repoFullName || !userInput) {
+        alert('Please select a repository and enter your question.');
+        return;
+      }
+
+      const response = await fetch('/generate_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo_full_name: repoFullName, user_input: userInput }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        chatOutput.value = data.chat;
+      } else {
+        alert(data.error || 'Failed to generate chat.');
+      }
+    }
+  </script>
+</body>
+</html>
