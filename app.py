@@ -6,7 +6,7 @@ from fpdf import FPDF
 import os
 
 # API keys
-GITHUB_API_TOKEN = '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'
+GITHUB_API_TOKEN = ''
 GEMINI_API_KEY = 'AIzaSyBBZ5_9tGyMUYBnLF3qbjUTB_Mfrd7bfm8'
 
 # Configure Gemini API
