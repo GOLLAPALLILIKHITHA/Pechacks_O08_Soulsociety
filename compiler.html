@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Compiler with Debug, Optimize, Generate, and Explain</title>
+  <style>
+    /* Global Style */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-align: center;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .compiler-container {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    select, button, input {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    select {
+      background: #fff;
+      color: #333;
+      outline: none;
+    }
+
+    button, input[type="submit"] {
+      background: #ff6f61;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    button:hover, input[type="submit"]:hover {
+      background: #ff9a9e;
+      transform: scale(1.05);
+    }
+
+    .editor-output {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      color: #333;
+      height: 200px;
+      resize: none;
+    }
+
+    .output {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      color: #00ff00;
+      overflow-y: auto;
+      height: 200px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    .input-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Code Compiler</h1>
+
+  <div class="compiler-container">
+    <div class="controls">
+      <select id="languageSelector">
+        <option value="">Select Language</option>
+      </select>
+      <button id="runButton">⚡ Run Code</button>
+    </div>
+
+    <div class="editor-output">
+      <textarea id="codeInput" placeholder="Type your code here..."></textarea>
+      <div class="output" id="outputDisplay">Output will be displayed here...</div>
+    </div>
+  </div>
+
+  <div class="footer">Code Compiler built for developers ✨</div>
+
+  <script>
+    const url = 'https://judge029.p.rapidapi.com/languages';
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '2cbe6697admshfe2cbc8d0a95117p1f53d5jsnb7d893d15b4c',
+        'x-rapidapi-host': 'judge029.p.rapidapi.com'
+      }
+    };
+
+    const languageSelector = document.getElementById('languageSelector');
+    const codeInput = document.getElementById('codeInput');
+    const outputDisplay = document.getElementById('outputDisplay');
+    const runButton = document.getElementById('runButton');
+    const debugButton = document.getElementById('debugButton');
+    const optimizeButton = document.getElementById('optimizeButton');
+    const generateButton = document.getElementById('generateButton');
+    const explainButton = document.getElementById('explainButton');
+    const promptInput = document.getElementById('promptInput');
+
+    async function fetchLanguages() {
+      try {
+        const response = await fetch(url, options);
+        const languages = await response.json();
+        languages.forEach(language => {
+          const option = document.createElement('option');
+          option.value = language.id;
+          option.textContent = language.name;
+          languageSelector.appendChild(option);
+        });
+      } catch (error) {
+        outputDisplay.textContent = `Error fetching languages: ${error.message}`;
+      }
+    }
+
+    async function runCode() {
+      const languageId = languageSelector.value;
+      const sourceCode = codeInput.value;
+
+      if (!languageId || !sourceCode) {
+        outputDisplay.textContent = 'Please select a language and write some code.';
+        return;
+      }
+
+      const executeUrl = 'https://judge029.p.rapidapi.com/submissions';
+      const executeOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-rapidapi-key': '2cbe6697admshfe2cbc8d0a95117p1f53d5jsnb7d893d15b4c',
+          'x-rapidapi-host': 'judge029.p.rapidapi.com'
+        },
+        body: JSON.stringify({
+          language_id: languageId,
+          source_code: sourceCode
+        })
+      };
+
+      try {
+        outputDisplay.textContent = 'Running...';
+
+        const response = await fetch(executeUrl, executeOptions);
+        const { token } = await response.json();
+
+        if (!token) {
+          outputDisplay.textContent = 'Error: Unable to generate submission token.';
+          return;
+        }
+
+        const resultUrl = `https://judge029.p.rapidapi.com/submissions/${token}`;
+        const resultOptions = {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': '2cbe6697admshfe2cbc8d0a95117p1f53d5jsnb7d893d15b4c',
+            'x-rapidapi-host': 'judge029.p.rapidapi.com'
+          }
+        };
+
+        let status = 'Processing';
+        while (status === 'Processing') {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const resultResponse = await fetch(resultUrl, resultOptions);
+          const result = await resultResponse.json();
+
+          if (result.status.id === 3) {
+            outputDisplay.textContent = result.stdout || 'No output.';
+            return;
+          } else if (result.status.id >= 4) {
+            outputDisplay.textContent = result.stderr || result.compile_output || 'An error occurred.';
+            return;
+          }
+          status = result.status.description;
+        }
+      } catch (error) {
+        outputDisplay.textContent = `Error running code: ${error.message}`;
+      }
+    }
+
+    async function debugCode() {
+      const languageId = languageSelector.value;
+      const sourceCode = codeInput.value;
+
+      if (!languageId || !sourceCode) {
+        outputDisplay.textContent = 'Please select a language and write some code.';
+        return;
+      }
+
+      // Simulate Debug: In real-world application, call a debug API
+      outputDisplay.textContent = `Debugging...\n${sourceCode}`; // Debug logic here
+    }
+
+    async function optimizeCode() {
+      const sourceCode = codeInput.value;
+
+      if (!sourceCode) {
+        outputDisplay.textContent = 'Please write some code to optimize.';
+        return;
+      }
+
+      // Simulate Optimization: In real-world application, call an optimization API
+      const optimizedCode = sourceCode.replace(/some_regex_to_optimize/g, 'optimized_code'); // Optimization logic
+      outputDisplay.textContent = `Optimized Code:\n${optimizedCode}`;
+    }
+
+    async function generateCode() {
+      const prompt = promptInput.value;
+
+      if (!prompt) {
+        outputDisplay.textContent = 'Please provide a prompt to generate code.';
+        return;
+      }
+
+      // Simulate code generation based on prompt
+      const generatedCode = `Generated code based on prompt: ${prompt}`; // Generation logic
+      outputDisplay.textContent = `Generated Code:\n${generatedCode}`;
+    }
+
+    async function explainCode() {
+      const sourceCode = codeInput.value;
+
+      if (!sourceCode) {
+        outputDisplay.textContent = 'Please write some code to explain.';
+        return;
+      }
+
+      // Simulate code explanation (PDF generation is a placeholder)
+      outputDisplay.textContent = `Explaining code...\n${sourceCode}`; // Explanation logic
+    }
+
+    fetchLanguages();
+
+    runButton.addEventListener('click', runCode);
+    debugButton.addEventListener('click', debugCode);
+    optimizeButton.addEventListener('click', optimizeCode);
+    generateButton.addEventListener('click', generateCode);
+    explainButton.addEventListener('click', explainCode);
+  </script>
+</body>
+</html>
